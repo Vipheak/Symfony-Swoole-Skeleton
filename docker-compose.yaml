@@ -1,0 +1,37 @@
+version: "3.9"
+
+services:
+  server:
+    build:
+      context: ./dockerfile
+      dockerfile: symfony-swoole.dockerfile
+      args:
+        PROJECTNAME: my_app
+    depends_on:
+      - database
+    stdin_open: true
+    tty: true
+    ports:
+      - "8000:9501"
+    volumes:
+      - ./config:/server/my_app/config
+      - ./public:/server/my_app/public
+      - ./src:/server/my_app/src
+      - ./templates:/server/my_app/templates
+      - ./tests:/server/my_app/tests
+      - ./translations:/server/my_app/translations
+      - ./.env:/server/my_app/.env
+      - ./.env.test:/server/my_app/.env.test
+    links:
+      - "database:database"
+
+  database:
+    build:
+      context: ./dockerfile
+      dockerfile: postgresql.dockerfile
+    environment:
+      POSTGRES_DB: db_name
+      POSTGRES_USER: db_user
+      POSTGRES_PASSWORD: db_password
+    ports:
+      - "5432:5432"
